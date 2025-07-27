@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "689202753813",
+    "project_id": "mbare-musika-prices",
+    "storage_bucket": "mbare-musika-prices.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689202753813:android:3d72314e9e544b82f4f91c",
+        "android_client_info": {
+          "package_name": "com.lionico.mbaremusika"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7JR7M2V0JY0o41bkBJRs1yctIPD1Xn_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

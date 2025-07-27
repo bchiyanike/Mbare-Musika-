@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4CAF50</color>
+    <color name="colorPrimaryDark">#388E3C</color>
+    <color name="colorAccent">#FFC107</color>
+
+    <color name="app_background">#E8F5E9</color>
+    <color name="text_primary">#1B5E20</color>
+    <color name="text_secondary">#4CAF50</color>
+    <color name="button_background">#4CAF50</color>
+    <color name="divider_color">#C8E6C9</color>
+    <color name="warning_color">#FF5722</color>
+</resources>

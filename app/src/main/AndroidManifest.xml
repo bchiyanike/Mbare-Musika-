@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.lionico.mbaremusika">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- SDK Version -->
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="33" />
+
+    <!-- Screen Support -->
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true">
+
+        <!-- Main Launcher -->
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Details Screen -->
+        <activity
+            android:name=".DetailActivity"
+            android:label="Product Details"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- Broadcast Receiver -->
+        <receiver
+            android:name=".PriceAlertReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.lionico.mbaremusika.PRICE_ALERT" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
