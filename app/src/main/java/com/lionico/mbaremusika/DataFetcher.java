@@ -55,13 +55,15 @@ public class DataFetcher {
                     result = "ERROR: " + e.getMessage();
                 }
 
+                final String finalResult = result; // ✅ capture result in a final variable
+
                 new Handler(context.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        if (result.startsWith("ERROR:")) {
-                            onError.run(result.substring(7)); // Strip "ERROR: " prefix
+                        if (finalResult.startsWith("ERROR:")) {
+                            onError.run(finalResult.substring(7));
                         } else {
-                            onSuccess.run(result);
+                            onSuccess.run(finalResult);
                         }
                     }
                 });
