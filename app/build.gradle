@@ -31,24 +31,53 @@ android {
 }
 
 dependencies {
-    // Multidex for older devices
+    // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
-
-    // Firebase Bill of Materials (BOM) - manages all Firebase versions
-    implementation platform('com.google.firebase:firebase-bom:33.0.0')
     
-    // Firebase dependencies (auto-versioned via BOM)
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:33.0.0')
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-common'
     implementation 'com.google.firebase:firebase-installations'
     implementation 'com.google.android.gms:play-services-base:18.4.0'
-
-    // Remove redundant/unnecessary dependencies:
-    // - firebase-components (included in core)
-    // - firebase-installations-interop (merged into main)
-    // - firebase-database-collection (internal library)
     
-    // Add core Firebase SDK (recommended)
+    // AndroidX
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+}plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.lionico.mbaremusika'
+    compileSdk 34
+    buildToolsVersion "34.0.0"
+
+    defaultConfig {
+        applicationId "com.lionico.mbaremusika"
+        minSdk 21
+        targetSdk 34
+        versionCode 4
+        versionName "1.1.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+recommended)
     implementation 'com.google.firebase:firebase-analytics'
     
     // Add AndroidX core dependencies
