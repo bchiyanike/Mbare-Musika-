@@ -1,14 +1,17 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion "33.0.0"
+    namespace 'com.lionico.mbaremusika'
+    compileSdk 34
+    buildToolsVersion "34.0.0"
 
     defaultConfig {
         applicationId "com.lionico.mbaremusika"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdk 21
+        targetSdk 34
         versionCode 4
         versionName "1.1.0"
         multiDexEnabled true
@@ -21,29 +24,69 @@ android {
         }
     }
 
-    // Manual repo setup (offline-friendly)
-    repositories {
-        maven { url '/storage/emulated/0/my-local-repo/' }
-        mavenLocal()
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    // Local JARs/AARs
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-
-    // Multidex for older devices
+    // Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
-
-    // 🔥 Firebase Firestore only (manual handling, Java 7–safe)
-    implementation 'com.google.firebase:firebase-firestore:24.4.1'
-    implementation 'com.google.firebase:firebase-common:20.3.2'
-    implementation 'com.google.firebase:firebase-components:17.0.0'
-    implementation 'com.google.firebase:firebase-installations:17.1.2'
-    implementation 'com.google.firebase:firebase-installations-interop:17.0.0'
-    implementation 'com.google.firebase:firebase-database-collection:17.0.1'
-    implementation 'com.google.android.gms:play-services-base:18.2.0'
     
-    // ✨ Add your custom libraries here
-    // implementation 'com.example:custom-library:1.0'
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:33.0.0')
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-common'
+    implementation 'com.google.firebase:firebase-installations'
+    implementation 'com.google.android.gms:play-services-base:18.4.0'
+    
+    // AndroidX
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+}plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.lionico.mbaremusika'
+    compileSdk 34
+    buildToolsVersion "34.0.0"
+
+    defaultConfig {
+        applicationId "com.lionico.mbaremusika"
+        minSdk 21
+        targetSdk 34
+        versionCode 4
+        versionName "1.1.0"
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+recommended)
+    implementation 'com.google.firebase:firebase-analytics'
+    
+    // Add AndroidX core dependencies
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0' // Even for Java projects
+    
+    // Material Design components
+    implementation 'com.google.android.material:material:1.11.0'
+    
+    // Optional: Lifecycle components
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.7.0'
 }
