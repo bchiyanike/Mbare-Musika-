@@ -1,16 +1,13 @@
 buildscript {
-    // Updated plugin versions compatible with Gradle 8.x and Java 17
-    ext.build_gradle_version = '8.3.0'
-    ext.google_services_version = '4.4.3'
+    ext {
+        build_gradle_version = '8.3.0'
+        google_services_version = '4.4.1'
+    }
 
     repositories {
-        // Standard repositories in recommended order
-        mavenLocal() 
-        google()        // Google's Maven repository (first for Android dependencies)
-        mavenCentral()  // Maven Central Repository (second for general libraries)
-        
-        // Community repositories (only keep what you actually need)
-        maven { url 'https://jitpack.io' }  // Keep if using libraries from GitHub
+        google()
+        mavenCentral()
+        maven { url = uri('https://jitpack.io') }
     }
     
     dependencies {
@@ -21,13 +18,9 @@ buildscript {
 
 allprojects {
     repositories {
-        // Standard repositories in recommended order
-        mavenLocal() 
         google()
         mavenCentral()
-        
-        // Community repositories (only keep what you actually need)
-        maven { url 'https://jitpack.io' }
+        maven { url = uri('https://jitpack.io') }
     }
 }
 
