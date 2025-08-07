@@ -28,12 +28,9 @@ public class MainActivity extends Activity {
         manager = new CommodityManager(this);
         initViews();
 
-        manager.loadAll(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetChanged();
-                updateStatusText();
-            }
+        manager.loadAll(() -> {
+            adapter.notifyDataSetChanged();
+            updateStatusText();
         });
 
         setupListeners();
@@ -53,17 +50,11 @@ public class MainActivity extends Activity {
     }
 
     private void setupListeners() {
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                manager.loadAll(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                        updateStatusText();
-                    }
-                });
-            }
+        refreshButton.setOnClickListener(view -> {
+            manager.loadAll(() -> {
+                adapter.notifyDataSetChanged();
+                updateStatusText();
+            });
         });
 
         searchEdit.addTextChangedListener(new TextWatcher() {
@@ -75,17 +66,16 @@ public class MainActivity extends Activity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Commodity c = (Commodity) parent.getItemAtPosition(position);
-                manager.prepareHistoryForDetail(c);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Commodity c = (Commodity) parent.getItemAtPosition(position);
+            manager.prepareHistoryForDetail(c);
 
-                Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra("COMMODITY_NAME", c.getName());
-                intent.putExtra("COMMODITY_QUANTITY", c.getQuantity());
-                intent.putExtra("COMMODITY_PRICE", c.getUsdPrice());
-                startActivity(intent);
-            }
+            Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+            intent.putExtra("COMMODITY_NAME", c.getName());
+            intent.putExtra("COMMODITY_QUANTITY", c.getQuantity());
+            intent.putExtra("COMMODITY_PRICE", c.getUsdPrice());
+            intent.putExtra("COMMODITY_ID", c.getId()); // ✅ added for history lookup
+            startActivity(intent);
         });
     }
 
