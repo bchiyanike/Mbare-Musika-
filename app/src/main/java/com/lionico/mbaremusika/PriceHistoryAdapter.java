@@ -1,10 +1,11 @@
 package com.lionico.mbaremusika;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.*;
 import android.widget.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
 public class PriceHistoryAdapter extends BaseAdapter {
 
@@ -13,7 +14,7 @@ public class PriceHistoryAdapter extends BaseAdapter {
 
     public PriceHistoryAdapter(Context ctx, List<PriceHistory.PriceRecord> records) {
         this.ctx = ctx;
-        this.records = records;
+        this.records = records != null ? records : List.of();
     }
 
     @Override
@@ -37,14 +38,27 @@ public class PriceHistoryAdapter extends BaseAdapter {
             v = LayoutInflater.from(ctx).inflate(android.R.layout.simple_list_item_2, parent, false);
         }
 
-        TextView line1 = (TextView) v.findViewById(android.R.id.text1);
-        TextView line2 = (TextView) v.findViewById(android.R.id.text2);
+        TextView line1 = v.findViewById(android.R.id.text1);
+        TextView line2 = v.findViewById(android.R.id.text2);
 
-        PriceHistory.PriceRecord r = records.get(i);
+        PriceHistory.PriceRecord current = records.get(i);
+        double price = current.getPrice();
+        line1.setText(String.format(Locale.getDefault(), "$%.2f", price));
+        line2.setText(current.getFormattedDateTime());
 
-        line1.setText("$" + r.getPrice());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault());
-        line2.setText(sdf.format(new Date(r.getTimestamp())));
+        // Highlight price drop
+        if (i > 0) {
+            double previous = records.get(i - 1).getPrice();
+            if (price < previous) {
+                line1.setTextColor(Color.parseColor("#D32F2F")); // red for drop
+            } else if (price > previous) {
+                line1.setTextColor(Color.parseColor("#388E3C")); // green for rise
+            } else {
+                line1.setTextColor(Color.BLACK); // neutral
+            }
+        } else {
+            line1.setTextColor(Color.BLACK);
+        }
 
         return v;
     }
