@@ -8,15 +8,6 @@ import android.widget.TextView;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class DetailActivity extends Activity {
 
     private static final String TAG = "DetailActivity";
@@ -41,11 +32,11 @@ public class DetailActivity extends Activity {
         setContentView(R.layout.activity_detail);
 
         // Initialize views
-        nameView = (TextView) findViewById(R.id.tv_detail_name);
-        quantityView = (TextView) findViewById(R.id.tv_detail_quantity);
-        priceView = (TextView) findViewById(R.id.tv_detail_price);
-        imageView = (ImageView) findViewById(R.id.iv_detail_image);
-        historyList = (ListView) findViewById(R.id.lv_price_history);
+        nameView = findViewById(R.id.tv_detail_name);
+        quantityView = findViewById(R.id.tv_detail_quantity);
+        priceView = findViewById(R.id.tv_detail_price);
+        imageView = findViewById(R.id.iv_detail_image);
+        historyList = findViewById(R.id.lv_price_history);
 
         // Get intent data
         commodityName = getIntent().getStringExtra("COMMODITY_NAME");
@@ -58,46 +49,8 @@ public class DetailActivity extends Activity {
         if (price != null) priceView.setText("$" + price);
 
         imageView.setImageResource(R.drawable.placeholder);
-        loadHistoryFromFirebase();
-    }
 
-    private void loadHistoryFromFirebase() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("commodities").document(commodityName)
-            .get()
-            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot doc) {
-                    List<Map<String, Object>> raw = (List<Map<String, Object>>) doc.get("history");
-                    if (raw != null && raw.size() > 0) {
-                        PriceHistory history = new PriceHistory(commodityName);
-                        for (Map<String, Object> item : raw) {
-                            Object priceObj = item.get("price");
-                            Object timeObj = item.get("timestamp");
-
-                            if (priceObj != null && timeObj != null) {
-                                try {
-                                    double p = Double.parseDouble(priceObj.toString());
-                                    long t = Long.parseLong(timeObj.toString());
-                                    history.addRecord(p, t);
-                                } catch (Exception ex) {
-                                    Log.w(TAG, "Skipping malformed history entry", ex);
-                                }
-                            }
-                        }
-                        displayHistory(history);
-                    } else {
-                        loadHistoryFromCache();
-                    }
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(Exception e) {
-                    Log.e(TAG, "Error loading history from Firebase", e);
-                    loadHistoryFromCache();
-                }
-            });
+        loadHistoryFromCache();
     }
 
     private void loadHistoryFromCache() {
