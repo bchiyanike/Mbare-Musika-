@@ -4,22 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CommodityManager {
 
@@ -33,9 +27,9 @@ public class CommodityManager {
 
     private final Context context;
     private final SharedPreferences prefs;
-    private final List<Commodity> allCommodities = new ArrayList<Commodity>();
-    private final List<Commodity> filteredCommodities = new ArrayList<Commodity>();
-    private final Map<String, PriceHistory> priceHistories = new HashMap<String, PriceHistory>();
+    private final List<Commodity> allCommodities = new ArrayList<>();
+    private final List<Commodity> filteredCommodities = new ArrayList<>();
+    private final Map<String, PriceHistory> priceHistories = new HashMap<>();
 
     public CommodityManager(Context context) {
         this.context = context;
@@ -46,59 +40,88 @@ public class CommodityManager {
         loadFavorites();
         loadPriceHistories();
 
-        FirebaseFirestore.getInstance()
-            .collection("commodities")
-            .get()
-            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot querySnapshot) {
-                    allCommodities.clear();
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        try {
-                            String name = doc.getString("name");
-                            String quantity = doc.getString("quantity");
-                            String price = doc.getString("price");
-                            String date = doc.getString("date");
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://api.jsonbin.io/v3/b/68949862f7e7a370d1f64e61/latest");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
 
-                            if (name != null && quantity != null && price != null) {
-                                Commodity commodity = new Commodity(name, quantity, price);
-                                allCommodities.add(commodity);
-
-                                Object historyObj = doc.get("history");
-                                if (historyObj != null && historyObj instanceof List) {
-                                    List<Map<String, Object>> historyList = (List<Map<String, Object>>) historyObj;
-                                    PriceHistory history = new PriceHistory(name); // Set name in constructor
-                                    for (Map<String, Object> entry : historyList) {
-                                        try {
-                                            double entryPrice = Double.parseDouble(entry.get("price").toString());
-                                            long timestamp = Long.parseLong(entry.get("timestamp").toString());
-                                            history.addRecord(entryPrice, timestamp);
-                                        } catch (Exception e) {
-                                            Log.w(TAG, "Skipping invalid history entry", e);
-                                        }
-                                    }
-                                    priceHistories.put(name, history);
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.w(TAG, "Error parsing document", e);
-                        }
-                    }
-
-                    filter("");
-                    cacheData();
-                    callback.run();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder builder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    builder.append(line);
                 }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(Exception e) {
-                    Log.e(TAG, "Error loading from Firestore", e);
-                    loadCachedData();
-                    filter("");
-                    callback.run();
+                reader.close();
+
+                String json = builder.toString();
+                parseJsonbinData(json);
+                cacheData();
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading from JSONbin", e);
+                loadCachedData();
+            }
+
+            filter("");
+            callback.run();
+        }).start();
+    }
+
+    private void parseJsonbinData(String json) {
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONObject record = root.getJSONObject("record");
+
+            allCommodities.clear();
+            JSONArray currentPrices = record.getJSONArray("currentPrices");
+            for (int i = 0; i < currentPrices.length(); i++) {
+                JSONObject obj = currentPrices.getJSONObject(i);
+                String name = obj.getString("itemName");
+                String quantity = obj.getString("quantity");
+                String price = String.valueOf(obj.getDouble("priceUSD"));
+                String id = obj.getString("id");
+
+                Commodity commodity = new Commodity(name, quantity, price);
+                commodity.setId(id);
+                allCommodities.add(commodity);
+            }
+
+            JSONArray historyArray = record.getJSONArray("priceHistory");
+            for (int i = 0; i < historyArray.length(); i++) {
+                JSONObject day = historyArray.getJSONObject(i);
+                String date = day.getString("date");
+                JSONArray prices = day.getJSONArray("prices");
+
+                for (int j = 0; j < prices.length(); j++) {
+                    JSONObject entry = prices.getJSONObject(j);
+                    String name = entry.getString("itemName");
+                    String quantity = entry.getString("quantity");
+                    double price = entry.getDouble("priceUSD");
+                    String id = entry.getString("id");
+
+                    long timestamp = parseDateToMillis(date);
+                    PriceHistory history = priceHistories.getOrDefault(id, new PriceHistory(name));
+                    history.addRecord(price, timestamp);
+                    priceHistories.put(id, history);
                 }
-            });
+            }
+
+            prefs.edit()
+                .putString(KEY_DATA_JSON, json)
+                .putLong(KEY_LAST_UPDATE, System.currentTimeMillis())
+                .apply();
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing JSONbin data", e);
+        }
+    }
+
+    private long parseDateToMillis(String dateStr) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateStr).getTime();
+        } catch (Exception e) {
+            return System.currentTimeMillis();
+        }
     }
 
     public List<Commodity> getFiltered() {
@@ -116,17 +139,17 @@ public class CommodityManager {
     }
 
     public void saveFavorites() {
-        Set<String> favorites = new HashSet<String>();
+        Set<String> favorites = new HashSet<>();
         for (Commodity commodity : allCommodities) {
             if (commodity.isFavorite()) {
-                favorites.add(commodity.getName());
+                favorites.add(commodity.getId());
             }
         }
         prefs.edit().putStringSet(KEY_FAVORITES, favorites).apply();
     }
 
     public void prepareHistoryForDetail(Commodity commodity) {
-        PriceHistory history = priceHistories.get(commodity.getName());
+        PriceHistory history = priceHistories.get(commodity.getId());
         if (history != null) {
             prefs.edit().putString(TEMP_HISTORY_KEY, serializeHistory(history)).apply();
         }
@@ -134,10 +157,9 @@ public class CommodityManager {
 
     private String serializeHistory(PriceHistory history) {
         StringBuilder sb = new StringBuilder();
-        sb.append(history.getName()).append("|"); // Store commodity name first
+        sb.append(history.getName()).append("|");
         for (PriceHistory.PriceRecord record : history.getRecords()) {
-            sb.append(record.getPrice()).append(",")
-				.append(record.getTimestamp()).append(";");
+            sb.append(record.getPrice()).append(",").append(record.getTimestamp()).append(";");
         }
         return sb.toString();
     }
@@ -147,22 +169,20 @@ public class CommodityManager {
     }
 
     public String formatDate(long millis) {
-        return new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
-            .format(new Date(millis));
+        return new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()).format(new Date(millis));
     }
 
     private void loadCachedData() {
         String raw = prefs.getString(KEY_DATA_JSON, "");
-        allCommodities.clear();
         if (!raw.isEmpty()) {
-            // Implement your commodity parsing logic here
+            parseJsonbinData(raw);
         }
     }
 
     private void loadFavorites() {
-        Set<String> favorites = prefs.getStringSet(KEY_FAVORITES, new HashSet<String>());
+        Set<String> favorites = prefs.getStringSet(KEY_FAVORITES, new HashSet<>());
         for (Commodity commodity : allCommodities) {
-            commodity.setFavorite(favorites.contains(commodity.getName()));
+            commodity.setFavorite(favorites.contains(commodity.getId()));
         }
     }
 
@@ -170,26 +190,24 @@ public class CommodityManager {
         Map<String, ?> allPrefs = prefs.getAll();
         for (Map.Entry<String, ?> entry : allPrefs.entrySet()) {
             if (entry.getKey().startsWith(KEY_HISTORY_PREFIX)) {
-                String name = entry.getKey().substring(KEY_HISTORY_PREFIX.length());
+                String id = entry.getKey().substring(KEY_HISTORY_PREFIX.length());
                 String data = (String) entry.getValue();
                 PriceHistory history = parseHistory(data);
                 if (history != null) {
-                    priceHistories.put(name, history);
+                    priceHistories.put(id, history);
                 }
             }
         }
     }
 
     private PriceHistory parseHistory(String data) {
-        if (data == null || data.isEmpty()) {
-            return null;
-        }
+        if (data == null || data.isEmpty()) return null;
 
         String[] parts = data.split("\\|");
         if (parts.length < 2) return null;
 
-        String commodityName = parts[0];
-        PriceHistory history = new PriceHistory(commodityName);
+        String name = parts[0];
+        PriceHistory history = new PriceHistory(name);
 
         String[] records = parts[1].split(";");
         for (String record : records) {
@@ -214,14 +232,13 @@ public class CommodityManager {
         editor.putLong(KEY_LAST_UPDATE, System.currentTimeMillis());
 
         for (Map.Entry<String, PriceHistory> entry : priceHistories.entrySet()) {
-            editor.putString(KEY_HISTORY_PREFIX + entry.getKey(), 
-							 serializeHistory(entry.getValue()));
+            editor.putString(KEY_HISTORY_PREFIX + entry.getKey(), serializeHistory(entry.getValue()));
         }
 
         editor.apply();
     }
 
-    public PriceHistory getHistoryFor(String name) {
-        return priceHistories.get(name);
+    public PriceHistory getHistoryFor(String id) {
+        return priceHistories.get(id);
     }
 }
