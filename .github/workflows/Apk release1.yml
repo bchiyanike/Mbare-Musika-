@@ -7,7 +7,56 @@ on:
     branches: [main]
 
 jobs:
+  version-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.bump.outputs.new_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name "Blessing Bot"
+          git config user.email "your-email@example.com"
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Parse version bump type
+        id: bump_type
+        run: |
+          commit_msg="${{ github.event.head_commit.message }}"
+          bump="patch"
+          if echo "$commit_msg" | grep -iq "minor update"; then bump="minor"; fi
+          if echo "$commit_msg" | grep -iq "major update"; then bump="major"; fi
+          echo "bump=$bump" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: bump
+        run: |
+          IFS='.' read -r major minor patch <<< "${{ steps.get_tag.outputs.latest_tag#v }}"
+          bump="${{ steps.bump_type.outputs.bump }}"
+          if [ "$bump" = "major" ]; then
+            major=$((major + 1)); minor=0; patch=0
+          elif [ "$bump" = "minor" ]; then
+            minor=$((minor + 1)); patch=0
+          else
+            patch=$((patch + 1))
+          fi
+          new_tag="v$major.$minor.$patch"
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
+      - name: Create and push new tag
+        run: |
+          git tag ${{ steps.bump.outputs.new_tag }}
+          git push origin ${{ steps.bump.outputs.new_tag }}
+
   build:
+    needs: version-tag
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +72,18 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Build both debug and release APKs
+      - name: Update versionCode and versionName
+        run: |
+          tag="${{ needs.version-tag.outputs.new_tag }}"
+          version="${tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+          code=$((major * 10000 + minor * 100 + patch))
+          sed -i "s/versionCode [0-9]\+/versionCode $code/" app/build.gradle
+          sed -i "s/versionName \".*\"/versionName \"$version\"/" app/build.gradle
+
       - name: Build APKs
         run: ./gradlew assembleDebug assembleRelease
 
-      # Upload as workflow artifacts (works for push/PR)
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +96,6 @@ jobs:
           name: app-release
           path: app/build/outputs/apk/release/app-release.apk
 
-      # Optional: Upload to Releases only for tags
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
