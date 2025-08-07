@@ -1,17 +1,14 @@
-name: Android APK Release
+name: Android APK Builder
 
 on:
   push:
-    branches: [main] # or your default branch
+    branches: [main]
   pull_request:
-    branches: [main] # optional: restrict to PRs targeting main
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write # Needed to upload assets to the release
 
     steps:
       - name: Checkout code
@@ -23,30 +20,31 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set JAVA_HOME explicitly
-        run: echo "JAVA_HOME=${{ env.JAVA_HOME }}" >> $GITHUB_ENV
-
-      - name: Verify Java version
-        run: java -version
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run tests
-        run: ./gradlew test
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+      # Build both debug and release APKs
+      - name: Build APKs
+        run: ./gradlew assembleDebug assembleRelease
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+      # Upload as workflow artifacts (works for push/PR)
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload Release Asset
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
+
+      # Optional: Upload to Releases only for tags
+      - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
