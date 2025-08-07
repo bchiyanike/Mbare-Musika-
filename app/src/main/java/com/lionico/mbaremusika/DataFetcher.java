@@ -25,46 +25,49 @@ public class DataFetcher {
 
     public void start() {
         new Thread(new Runnable() {
-				@Override
-				public void run() {
-					final String result;
-					try {
-						URL url = new URL("https://zimpricecheck.com/price-updates/fruit-and-vegetable-prices/");
-						HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-						conn.setRequestMethod("GET");
-						conn.setConnectTimeout(10000);
-						conn.setReadTimeout(15000);
+            @Override
+            public void run() {
+                String result = "ERROR: Unknown failure";
 
-						int code = conn.getResponseCode();
-						if (code != HttpURLConnection.HTTP_OK) {
-							result = "ERROR: HTTP " + code;
-						} else {
-							BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-							StringBuilder builder = new StringBuilder();
-							String line;
-							while ((line = reader.readLine()) != null) {
-								builder.append(line);
-							}
-							reader.close();
-							result = builder.toString();
-						}
+                try {
+                    URL url = new URL("https://zimpricecheck.com/price-updates/fruit-and-vegetable-prices/");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(10000);
+                    conn.setReadTimeout(15000);
 
-						conn.disconnect();
-					} catch (Exception e) {
-						result = "ERROR: " + e.getMessage();
-					}
+                    int code = conn.getResponseCode();
+                    if (code != HttpURLConnection.HTTP_OK) {
+                        result = "ERROR: HTTP " + code;
+                    } else {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        StringBuilder builder = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            builder.append(line);
+                        }
+                        reader.close();
+                        result = builder.toString();
+                    }
 
-					new Handler(context.getMainLooper()).post(new Runnable() {
-							@Override
-							public void run() {
-								if (result.startsWith("ERROR:")) {
-									onError.run(result.substring(7));
-								} else {
-									onSuccess.run(result);
-								}
-							}
-						});
-				}
-			}).start();
+                    conn.disconnect();
+                } catch (Exception e) {
+                    result = "ERROR: " + e.getMessage();
+                }
+
+                final String finalResult = result; // ✅ capture result in a final variable
+
+                new Handler(context.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (finalResult.startsWith("ERROR:")) {
+                            onError.run(finalResult.substring(7));
+                        } else {
+                            onSuccess.run(finalResult);
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 }
