@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.List;
 
 public class CommodityAdapter extends BaseAdapter {
@@ -56,12 +57,13 @@ public class CommodityAdapter extends BaseAdapter {
             holder.nameText.setText(commodity.getName());
             holder.quantityText.setText(commodity.getQuantity());
 
-            // Format USD price with dollar sign
-            String price = commodity.getUsdPrice();
-            if (!price.startsWith("$")) {
-                price = "$" + price;
+            // Format USD price with dollar sign and two decimals
+            try {
+                double price = Double.parseDouble(commodity.getUsdPrice());
+                holder.usdPriceText.setText(String.format(Locale.getDefault(), "$%.2f", price));
+            } catch (NumberFormatException e) {
+                holder.usdPriceText.setText("$" + commodity.getUsdPrice());
             }
-            holder.usdPriceText.setText(price);
 
             // Update favorite star
             holder.favoriteStar.setImageResource(
@@ -71,19 +73,15 @@ public class CommodityAdapter extends BaseAdapter {
             );
 
             // Favorite toggle
-            holder.favoriteStar.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						boolean newState = !commodity.isFavorite();
-						commodity.setFavorite(newState);
-						notifyDataSetChanged();
+            holder.favoriteStar.setOnClickListener(v -> {
+                boolean newState = !commodity.isFavorite();
+                commodity.setFavorite(newState);
+                notifyDataSetChanged();
 
-						// Save favorites
-						if (context instanceof MainActivity) {
-							((MainActivity) context).saveFavorites();
-						}
-					}
-				});
+                if (context instanceof MainActivity) {
+                    ((MainActivity) context).saveFavorites();
+                }
+            });
         }
 
         return convertView;
