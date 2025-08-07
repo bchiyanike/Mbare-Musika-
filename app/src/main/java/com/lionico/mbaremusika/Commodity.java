@@ -6,6 +6,7 @@ public class Commodity {
     private String usdPrice;
     private String category;
     private boolean isFavorite;
+    private String id;
 
     public Commodity(String name, String quantity, String usdPrice) {
         this.name = name != null ? name : "";
@@ -13,6 +14,7 @@ public class Commodity {
         this.usdPrice = usdPrice != null ? usdPrice : "";
         this.category = categorizeItem(name);
         this.isFavorite = false;
+        this.id = generateId(name, quantity);
     }
 
     public String getName() { return name; }
@@ -22,6 +24,9 @@ public class Commodity {
     public boolean isFavorite() { return isFavorite; }
     public void setFavorite(boolean favorite) { isFavorite = favorite; }
 
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
     private String categorizeItem(String name) {
         if (name == null) return "Other";
         String lowerName = name.toLowerCase();
@@ -30,7 +35,8 @@ public class Commodity {
             lowerName.contains("orange") || lowerName.contains("mango")) {
             return "Fruits";
         } else if (lowerName.contains("tomato") || lowerName.contains("cabbage") || 
-                   lowerName.contains("onion") || lowerName.contains("potato")) {
+                   lowerName.contains("onion") || lowerName.contains("potato") ||
+                   lowerName.contains("carrot") || lowerName.contains("beans")) {
             return "Vegetables";
         } else if (lowerName.contains("beef") || lowerName.contains("chicken") || 
                    lowerName.contains("pork") || lowerName.contains("fish")) {
@@ -41,5 +47,9 @@ public class Commodity {
         } else {
             return "Other";
         }
+    }
+
+    private String generateId(String name, String quantity) {
+        return (name + "_" + quantity).toLowerCase().replaceAll("\\s+", "").replaceAll("[^a-z0-9_]", "");
     }
 }
