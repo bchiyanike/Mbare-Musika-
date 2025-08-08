@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.*;
+import com.google.android.material.appbar.MaterialToolbar;
 
 public class MainActivity extends Activity {
 
@@ -14,8 +14,8 @@ public class MainActivity extends Activity {
     private EditText searchEdit;
     private TextView lastUpdatedText;
     private TextView statusText;
-    private Button refreshButton;
     private TextView emptyView;
+    private MaterialToolbar toolbar;
 
     private CommodityAdapter adapter;
     private CommodityManager manager;
@@ -41,8 +41,8 @@ public class MainActivity extends Activity {
         searchEdit = findViewById(R.id.et_search);
         lastUpdatedText = findViewById(R.id.tv_last_updated);
         statusText = findViewById(R.id.tv_status);
-        refreshButton = findViewById(R.id.btn_refresh);
         emptyView = findViewById(android.R.id.empty);
+        toolbar = findViewById(R.id.toolbar);
 
         listView.setEmptyView(emptyView);
         adapter = new CommodityAdapter(this, manager.getFiltered());
@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupListeners() {
-        refreshButton.setOnClickListener(view -> {
+        toolbar.setNavigationOnClickListener(v -> {
             manager.loadAll(() -> {
                 adapter.notifyDataSetChanged();
                 updateStatusText();
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
             intent.putExtra("COMMODITY_NAME", c.getName());
             intent.putExtra("COMMODITY_QUANTITY", c.getQuantity());
             intent.putExtra("COMMODITY_PRICE", c.getUsdPrice());
-            intent.putExtra("COMMODITY_ID", c.getId()); // ✅ added for history lookup
+            intent.putExtra("COMMODITY_ID", c.getId());
             startActivity(intent);
         });
     }
@@ -84,11 +84,11 @@ public class MainActivity extends Activity {
         if (lastUpdate == 0) {
             lastUpdatedText.setText("Never updated");
             statusText.setText("No cached data. Pull to refresh.");
-            statusText.setVisibility(View.VISIBLE);
+            statusText.setVisibility(TextView.VISIBLE);
         } else {
             String dateStr = manager.formatDate(lastUpdate);
             lastUpdatedText.setText("Updated: " + dateStr);
-            statusText.setVisibility(View.GONE);
+            statusText.setVisibility(TextView.GONE);
         }
     }
 
