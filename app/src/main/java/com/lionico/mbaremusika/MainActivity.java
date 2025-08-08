@@ -26,17 +26,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         manager = new CommodityManager(this);
-        initViews();
 
-        manager.loadAll(() -> {
-            adapter.notifyDataSetChanged();
-            updateStatusText();
-        });
-
-        setupListeners();
-    }
-
-    private void initViews() {
+        // Initialize views
         listView = findViewById(R.id.lv_commodities);
         searchEdit = findViewById(R.id.et_search);
         lastUpdatedText = findViewById(R.id.tv_last_updated);
@@ -45,18 +36,21 @@ public class MainActivity extends Activity {
         toolbar = findViewById(R.id.toolbar);
 
         listView.setEmptyView(emptyView);
+
         adapter = new CommodityAdapter(this, manager.getFiltered());
         listView.setAdapter(adapter);
-    }
 
-    private void setupListeners() {
+        // Setup refresh click on toolbar navigation icon
         toolbar.setNavigationOnClickListener(v -> {
             manager.loadAll(() -> {
-                adapter.notifyDataSetChanged();
-                updateStatusText();
+                runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                    updateStatusText();
+                });
             });
         });
 
+        // Setup search filter
         searchEdit.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -66,6 +60,7 @@ public class MainActivity extends Activity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        // Item click opens DetailActivity
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Commodity c = (Commodity) parent.getItemAtPosition(position);
             manager.prepareHistoryForDetail(c);
@@ -76,6 +71,14 @@ public class MainActivity extends Activity {
             intent.putExtra("COMMODITY_PRICE", c.getUsdPrice());
             intent.putExtra("COMMODITY_ID", c.getId());
             startActivity(intent);
+        });
+
+        // Initial load
+        manager.loadAll(() -> {
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+                updateStatusText();
+            });
         });
     }
 
