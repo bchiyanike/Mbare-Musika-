@@ -8,11 +8,6 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- SDK Version -->
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="33" />
-
     <!-- Screen Support -->
     <supports-screens
         android:smallScreens="true"
@@ -52,7 +47,8 @@
         <receiver
             android:name=".PriceAlertReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="com.lionico.mbaremusika.PRICE_ALERT" />
