@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App identity -->
     <string name="app_name">Mbare Musika Prices</string>
@@ -7,24 +8,25 @@
     <string name="btn_refresh">Refresh</string>
     <string name="label_last_updated">Last updated: %s</string>
     <string name="label_price_history">Price History</string>
-    <string name="desc_price_history_list">Price history list description</string>
-    <string name="last_updated">Last updated</string>
+    <string name="label_settings">Settings</string>
+    <string name="label_about">About</string>
 
     <!-- Status messages -->
     <string name="msg_no_data">No commodities available</string>
-    <string name="empty_message">No items available</string>
-    <string name="no_data">No data</string>
     <string name="msg_loading">Loading...</string>
     <string name="msg_network_error">Network error: %s</string>
     <string name="msg_parse_error">Parse error: %s</string>
+    <string name="msg_refreshing">Refreshing data...</string>
 
     <!-- Accessibility -->
     <string name="desc_favorite_icon">Favorite toggle</string>
-    <string name="favorite_icon">Favorite icon</string>
     <string name="desc_refresh_icon">Refresh prices</string>
     <string name="desc_warning_icon">Status warning</string>
     <string name="desc_product_image">Product image</string>
 
-    <!-- Missing string for AndroidManifest -->
+    <!-- Details and navigation -->
     <string name="product_details">Product Details</string>
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>
