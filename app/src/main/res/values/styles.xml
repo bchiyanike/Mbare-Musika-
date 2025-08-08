@@ -14,11 +14,6 @@
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
-
-        <!-- Optional: Remove problematic component overrides -->
-        <!-- These styles were referencing undeclared attributes (like listViewStyle)
-             and causing Gradle resource linking failures -->
-        <!-- If you wish to re-add these, declare the attributes in attrs.xml -->
     </style>
 
     <!-- Custom component styles (apply explicitly via XML, not via theme) -->
@@ -28,7 +23,8 @@
         <item name="android:dividerHeight">1dp</item>
     </style>
 
-    <style name="MaterialEditTextStyle" parent="Widget.MaterialComponents.TextInputEditText">
+    <!-- Updated to Material3-compatible parent -->
+    <style name="MaterialEditTextStyle" parent="Widget.Material3.TextInputEditText.FilledBox">
         <item name="android:background">@drawable/ic_search_background</item>
         <item name="android:textColor">@color/colorOnSurface</item>
         <item name="android:textSize">16sp</item>
