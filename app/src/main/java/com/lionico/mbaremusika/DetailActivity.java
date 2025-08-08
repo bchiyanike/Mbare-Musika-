@@ -7,7 +7,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.FrameLayout;
-import android.widget.SharedPreferences;
+import android.content.SharedPreferences;
 import android.view.ViewGroup;
 import android.view.View;
 import android.util.Log;
