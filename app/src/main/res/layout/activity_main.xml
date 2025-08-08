@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#E8F5E9">
-
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -22,7 +8,7 @@
     android:padding="16dp"
     android:background="?attr/colorBackground">
 
-    <!-- Top App Bar -->
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -59,8 +45,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingVertical="8dp">
 
         <TextView
             android:id="@+id/tv_last_updated"
@@ -97,8 +82,8 @@
             android:layout_height="wrap_content"
             android:divider="@color/divider_color"
             android:dividerHeight="1dp"
-            android:paddingVertical="4dp"
-            android:scrollbars="vertical" />
+            android:scrollbars="vertical"
+            android:paddingVertical="4dp" />
     </androidx.core.widget.NestedScrollView>
 
     <!-- Empty View -->
@@ -113,72 +98,5 @@
         android:background="@drawable/ic_search_background"
         android:contentDescription="@string/empty_message"
         android:visibility="gone" />
+
 </LinearLayout>
-        android:gravity="center_vertical"
-        android:paddingBottom="16dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Mbare Musika Prices"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#1B5E20"
-            android:background="#FFE3E121"
-            android:padding="4dp"
-            android:ellipsize="end"
-            android:maxLines="1" />
-
-        <Button
-            android:id="@+id/btn_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="Get Latest Prices"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            android:background="?android:attr/selectableItemBackground"
-            android:drawableStart="@drawable/ic_refresh"
-            android:drawablePadding="8dp"
-            android:paddingHorizontal="16dp"
-            android:contentDescription="Refresh prices" />
-    </LinearLayout>
-
-    <!-- Search -->
-    <EditText
-        android:id="@+id/et_search"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="Search commodities..."
-        android:padding="12dp"
-        android:layout_marginBottom="8dp"
-        android:singleLine="true"
-        android:imeOptions="actionSearch"
-        android:background="@android:drawable/edit_text" />
-
-    <!-- Status Row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingBottom="8dp">
-
-        <TextView
-            android:id="@+id/tv_last_updated"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Last updated: ..."
-            android:textSize="12sp"
-            android:textColor="#4CAF50" />
-
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp"
-            android:textColor="#FF5722"
-            android:visibility="gone"
-            android:drawableStart="@drawable/ic_warning"
