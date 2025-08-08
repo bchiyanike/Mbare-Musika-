@@ -23,6 +23,8 @@
     <string name="desc_refresh_icon">Refresh prices</string>
     <string name="desc_warning_icon">Status warning</string>
     <string name="desc_product_image">Product image</string>
+    <string name="desc_price_history_list">Price history list</string>
+    <string name="favorite_icon">Favorite star icon</string>
 
     <!-- Details and navigation -->
     <string name="product_details">Product Details</string>
