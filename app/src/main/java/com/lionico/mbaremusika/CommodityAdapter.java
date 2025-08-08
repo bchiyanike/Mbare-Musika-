@@ -9,11 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Locale;
 
 public class CommodityAdapter extends BaseAdapter {
-    private Context context;
+    private final Context context;
     private List<Commodity> commodities;
-    private LayoutInflater inflater;
+    private final LayoutInflater inflater;
 
     public CommodityAdapter(Context context, List<Commodity> commodities) {
         this.context = context;
@@ -57,7 +58,6 @@ public class CommodityAdapter extends BaseAdapter {
             holder.nameText.setText(commodity.getName());
             holder.quantityText.setText(commodity.getQuantity());
 
-            // Format USD price with dollar sign and two decimals
             try {
                 double price = Double.parseDouble(commodity.getUsdPrice());
                 holder.usdPriceText.setText(String.format(Locale.getDefault(), "$%.2f", price));
@@ -65,14 +65,12 @@ public class CommodityAdapter extends BaseAdapter {
                 holder.usdPriceText.setText("$" + commodity.getUsdPrice());
             }
 
-            // Update favorite star
             holder.favoriteStar.setImageResource(
                 commodity.isFavorite() ? 
                 R.drawable.ic_star_filled : 
                 R.drawable.ic_star_empty
             );
 
-            // Favorite toggle
             holder.favoriteStar.setOnClickListener(v -> {
                 boolean newState = !commodity.isFavorite();
                 commodity.setFavorite(newState);
