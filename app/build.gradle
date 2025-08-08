@@ -1,12 +1,10 @@
 plugins {
     id 'com.android.application'
-    // Firebase plugin removed
 }
 
 android {
     namespace 'com.lionico.mbaremusika'
     compileSdk 34
-    buildToolsVersion '34.0.0'
 
     defaultConfig {
         applicationId "com.lionico.mbaremusika"
@@ -28,19 +26,33 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
 }
 
 dependencies {
-    // Multidex
-    implementation 'androidx.multidex:multidex:2.0.1'
-
-    // Core AndroidX + Material You
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    // AndroidX core
     implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+
+    // Material Design 3
     implementation 'com.google.android.material:material:1.11.0'
 
-    // UI support (optional but commonly used)
-    implementation 'androidx.cardview:cardview:1.0.0'
+    // Layouts and views
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.cardview:cardview:1.0.0'
+
+    // Multidex support
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // (Optional) Lifecycle support
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+
+    // (Optional) ViewModel & LiveData
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
 }
