@@ -1,10 +1,22 @@
 <resources>
+    <!-- App identity -->
     <string name="app_name">Mbare Musika Prices</string>
-    <string name="search_hint">Search commodities...</string>
-    <string name="refresh_button">Refresh</string>
-    <string name="last_updated">Last updated: %s</string>
-    <string name="no_data">No commodities available</string>
-    <string name="loading">Loading...</string>
-    <string name="network_error">Network error: %s</string>
-    <string name="parse_error">Parse error: %s</string>
+
+    <!-- UI hints and labels -->
+    <string name="hint_search">Search commodities...</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="label_last_updated">Last updated: %s</string>
+    <string name="label_price_history">Price History</string>
+
+    <!-- Status messages -->
+    <string name="msg_no_data">No commodities available</string>
+    <string name="msg_loading">Loading...</string>
+    <string name="msg_network_error">Network error: %s</string>
+    <string name="msg_parse_error">Parse error: %s</string>
+
+    <!-- Accessibility -->
+    <string name="desc_favorite_icon">Favorite toggle</string>
+    <string name="desc_refresh_icon">Refresh prices</string>
+    <string name="desc_warning_icon">Status warning</string>
+    <string name="desc_product_image">Product image</string>
 </resources>
