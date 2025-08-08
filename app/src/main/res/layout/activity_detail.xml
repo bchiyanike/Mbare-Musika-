@@ -1,25 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#E8F5E9">
+    android:background="?attr/colorBackground"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
 
-        <!-- Product Image -->
-        <ImageView
-            android:id="@+id/iv_detail_image"
+        <!-- Product Image Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder"
-            android:background="#FFFFFF"
-            android:padding="8dp"
-            android:contentDescription="Product image" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeColor="?attr/colorOutline"
+            app:strokeWidth="1dp"
+            android:contentDescription="@string/desc_product_image">
+
+            <ImageView
+                android:id="@+id/iv_detail_image"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder"
+                android:contentDescription="@string/desc_product_image" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Product Info -->
         <TextView
@@ -28,9 +40,8 @@
             android:layout_height="wrap_content"
             android:text="Product Name"
             android:textSize="24sp"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
-            android:textColor="#1B5E20"
-            android:paddingTop="16dp"
             android:paddingBottom="4dp" />
 
         <TextView
@@ -39,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text="Quantity"
             android:textSize="18sp"
-            android:textColor="#4CAF50"
+            android:textColor="?attr/colorSecondary"
             android:paddingBottom="4dp" />
 
         <TextView
@@ -48,19 +59,20 @@
             android:layout_height="wrap_content"
             android:text="$0.00"
             android:textSize="22sp"
-            android:textColor="#388E3C"
+            android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
             android:gravity="end"
             android:paddingBottom="8dp" />
 
         <!-- Price History Header -->
         <TextView
+            android:id="@+id/tv_price_history_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Price History"
+            android:text="@string/label_price_history"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#1B5E20"
+            android:textColor="?attr/colorOnSurface"
             android:paddingTop="24dp"
             android:paddingBottom="8dp" />
 
@@ -69,11 +81,11 @@
             android:id="@+id/lv_price_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="#C8E6C9"
+            android:divider="@color/divider_color"
             android:dividerHeight="1dp"
-            android:background="#FFFFFF"
-            android:nestedScrollingEnabled="true"
+            android:background="?attr/colorSurface"
+            android:contentDescription="@string/desc_price_history_list"
             android:scrollbars="vertical"
-            android:contentDescription="Price history list" />
+            android:nestedScrollingEnabled="true" />
     </LinearLayout>
 </ScrollView>
