@@ -18,7 +18,8 @@
             android:scaleType="centerCrop"
             android:src="@drawable/placeholder"
             android:background="#FFFFFF"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            android:contentDescription="Product image" />
 
         <!-- Product Info -->
         <TextView
@@ -29,7 +30,8 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#1B5E20"
-            android:paddingTop="16dp"/>
+            android:paddingTop="16dp"
+            android:paddingBottom="4dp" />
 
         <TextView
             android:id="@+id/tv_detail_quantity"
@@ -38,7 +40,7 @@
             android:text="Quantity"
             android:textSize="18sp"
             android:textColor="#4CAF50"
-            android:paddingTop="8dp"/>
+            android:paddingBottom="4dp" />
 
         <TextView
             android:id="@+id/tv_detail_price"
@@ -48,8 +50,8 @@
             android:textSize="22sp"
             android:textColor="#388E3C"
             android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:gravity="end"/>
+            android:gravity="end"
+            android:paddingBottom="8dp" />
 
         <!-- Price History Header -->
         <TextView
@@ -60,16 +62,18 @@
             android:textStyle="bold"
             android:textColor="#1B5E20"
             android:paddingTop="24dp"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp" />
 
         <!-- Price History List -->
         <ListView
             android:id="@+id/lv_price_history"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="wrap_content"
             android:divider="#C8E6C9"
             android:dividerHeight="1dp"
-            android:background="#FFFFFF"/>
-
+            android:background="#FFFFFF"
+            android:nestedScrollingEnabled="true"
+            android:scrollbars="vertical"
+            android:contentDescription="Price history list" />
     </LinearLayout>
 </ScrollView>
