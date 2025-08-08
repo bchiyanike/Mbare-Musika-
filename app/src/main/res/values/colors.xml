@@ -1,30 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Primary brand color -->
     <color name="colorPrimary">#4CAF50</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
-
-    <!-- Secondary accent color -->
-    <color name="colorSecondary">#81C784</color>
-    <color name="colorOnSecondary">#1B5E20</color>
-
-    <!-- Surface and background layers -->
-    <color name="colorSurface">#F5F5F5</color>
-    <color name="colorOnSurface">#1B5E20</color>
-    <color name="colorBackground">#E8F5E9</color>
-    <color name="colorOnBackground">#1B5E20</color>
-
-    <!-- Error and warning -->
-    <color name="colorError">#FF5722</color>
-    <color name="colorOnError">#FFFFFF</color>
-
-    <!-- Legacy support (optional) -->
     <color name="colorPrimaryDark">#388E3C</color>
     <color name="colorAccent">#FFC107</color>
-    <color name="divider_color">#C8E6C9</color>
-    <color name="button_background">#4CAF50</color>
+
+    <color name="app_background">#E8F5E9</color>
+    <color name="colorBackground">#E8F5E9</color> <!-- Added to fix attr reference -->
+
     <color name="text_primary">#1B5E20</color>
     <color name="text_secondary">#4CAF50</color>
-
+    <color name="button_background">#4CAF50</color>
+    <color name="divider_color">#C8E6C9</color>
+    <color name="warning_color">#FF5722</color>
 </resources>
