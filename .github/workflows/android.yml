@@ -2,9 +2,9 @@ name: Android CI for Patch-2
 
 on:
   push:
-    branches: [ "patch-2" ]
+    branches: [ "bchiyanike-patch-2" ]
   pull_request:
-    branches: [ "patch-2" ]
+    branches: [ "bchiyanike-patch-2" ]
   workflow_dispatch:
     inputs:
       buildType:
