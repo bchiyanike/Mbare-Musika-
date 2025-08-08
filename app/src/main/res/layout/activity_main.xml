@@ -12,6 +12,108 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/colorBackground">
+
+    <!-- Top App Bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:title="@string/app_name"
+        android:background="?attr/colorSurface"
+        android:titleTextColor="?attr/colorOnSurface"
+        app:titleCentered="true"
+        app:navigationIcon="@drawable/ic_refresh"
+        android:contentDescription="@string/desc_refresh_icon" />
+
+    <!-- Search Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="@string/hint_search"
+        app:boxBackgroundMode="filled"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:startIconDrawable="@drawable/ic_search"
+        android:contentDescription="@string/hint_search">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:imeOptions="actionSearch" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Status Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_last_updated"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/last_updated"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="?attr/colorError"
+            android:visibility="gone"
+            android:drawableStart="@drawable/ic_warning"
+            android:drawablePadding="4dp"
+            android:contentDescription="@string/desc_warning_icon" />
+    </LinearLayout>
+
+    <!-- Commodity List -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <ListView
+            android:id="@+id/lv_commodities"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@color/divider_color"
+            android:dividerHeight="1dp"
+            android:paddingVertical="4dp"
+            android:scrollbars="vertical" />
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Empty View -->
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/no_data"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="?attr/colorSecondary"
+        android:background="@drawable/ic_search_background"
+        android:contentDescription="@string/empty_message"
+        android:visibility="gone" />
+</LinearLayout>
         android:gravity="center_vertical"
         android:paddingBottom="16dp">
 
@@ -80,32 +182,3 @@
             android:textColor="#FF5722"
             android:visibility="gone"
             android:drawableStart="@drawable/ic_warning"
-            android:drawablePadding="4dp"
-            android:contentDescription="Status warning" />
-    </LinearLayout>
-
-    <!-- Commodity List -->
-    <ListView
-        android:id="@+id/lv_commodities"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="#C8E6C9"
-        android:dividerHeight="1dp"
-        android:scrollbars="vertical"
-        android:fastScrollEnabled="true"
-        android:paddingVertical="4dp" />
-
-    <!-- Empty View -->
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="No commodities available"
-        android:gravity="center"
-        android:textSize="16sp"
-        android:textColor="#4CAF50"
-        android:visibility="gone"
-        android:background="@drawable/ic_search_background"
-        android:contentDescription="Empty list message" />
-</LinearLayout>
