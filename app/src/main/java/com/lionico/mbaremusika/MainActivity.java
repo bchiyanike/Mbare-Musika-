@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView emptyView;
     private MaterialToolbar toolbar;
 
-    private CommodityRecyclerAdapter adapter;
+    private CommodityAdapter adapter;
     private CommodityManager manager;
 
     @Override
@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         initToolbar();
         initSearch();
 
-        // Initial load
         loadData();
     }
 
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initRecycler() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CommodityRecyclerAdapter(manager.getFiltered(), this::openDetail);
+        adapter = new CommodityAdapter(this, manager.getFiltered(), this::openDetail);
         recyclerView.setAdapter(adapter);
     }
 
