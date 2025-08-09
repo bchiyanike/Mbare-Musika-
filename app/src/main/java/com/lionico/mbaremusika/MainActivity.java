@@ -1,117 +1,106 @@
 package com.lionico.mbaremusika;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.*;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import com.google.firebase.FirebaseApp;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends Activity {
+import java.util.ArrayList;
+import java.util.List;
 
-    private ListView listView;
-    private EditText searchEdit;
-    private TextView lastUpdatedText;
-    private TextView statusText;
-    private Button refreshButton;
+public class MainActivity extends AppCompatActivity {
+
+    private RecyclerView recyclerView;
+    private CommodityAdapter adapter;
+    private EditText searchBox;
+    private ProgressBar progressBar;
     private TextView emptyView;
 
-    private CommodityAdapter adapter;
-    private CommodityManager manager;
+    private List<Commodity> commodityList = new ArrayList<>();
+    private List<Commodity> filteredList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
 
-        manager = new CommodityManager(this);
-        initViews();
+        recyclerView = findViewById(R.id.recyclerView);
+        searchBox = findViewById(R.id.search_box);
+        progressBar = findViewById(R.id.progress_bar);
+        emptyView = findViewById(R.id.empty_view);
 
-        manager.loadAll(new Runnable() {
-				@Override
-				public void run() {
-					adapter.notifyDataSetChanged();
-					updateStatusText();
-				}
-			});
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new CommodityAdapter(filteredList, commodity -> {
+            // Handle click event here
+            // Example: open detail screen
+        });
+        recyclerView.setAdapter(adapter);
 
-        setupListeners();
+        loadData();
+        setupSearch();
     }
 
-    private void initViews() {
-        listView = findViewById(R.id.lv_commodities);
-        searchEdit = findViewById(R.id.et_search);
-        lastUpdatedText = findViewById(R.id.tv_last_updated);
-        statusText = findViewById(R.id.tv_status);
-        refreshButton = findViewById(R.id.btn_refresh);
-        emptyView = findViewById(android.R.id.empty);
+    private void loadData() {
+        progressBar.setVisibility(View.VISIBLE);
 
-        listView.setEmptyView(emptyView);
-        adapter = new CommodityAdapter(this, manager.getFiltered());
-        listView.setAdapter(adapter);
+        // TODO: Replace with actual data fetching
+        commodityList.clear();
+        commodityList.add(new Commodity("Tomatoes", "10kg", "$5"));
+        commodityList.add(new Commodity("Onions", "20kg", "$8"));
+        commodityList.add(new Commodity("Cabbages", "per head", "$1"));
+
+        filteredList.clear();
+        filteredList.addAll(commodityList);
+        adapter.notifyDataSetChanged();
+
+        progressBar.setVisibility(View.GONE);
+        toggleEmptyView();
     }
 
-    private void setupListeners() {
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					manager.loadAll(new Runnable() {
-							@Override
-							public void run() {
-								adapter.notifyDataSetChanged();
-								updateStatusText();
-							}
-						});
-				}
-			});
+    private void setupSearch() {
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
-        searchEdit.addTextChangedListener(new TextWatcher() {
-				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterList(s.toString());
+            }
 
-				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
-					manager.filter(s.toString());
-					adapter.notifyDataSetChanged();
-				}
-
-				@Override
-				public void afterTextChanged(Editable s) {}
-			});
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-					Commodity c = (Commodity) parent.getItemAtPosition(position);
-					manager.prepareHistoryForDetail(c);
-
-					Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-					intent.putExtra("COMMODITY_NAME", c.getName());
-					intent.putExtra("COMMODITY_QUANTITY", c.getQuantity());
-					intent.putExtra("COMMODITY_PRICE", c.getUsdPrice());
-					startActivity(intent);
-				}
-			});
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
     }
 
-    private void updateStatusText() {
-        long lastUpdate = manager.getLastUpdate();
-        if (lastUpdate == 0) {
-            lastUpdatedText.setText("Never updated");
-            statusText.setText("No cached data. Pull to refresh.");
-            statusText.setVisibility(View.VISIBLE);
+    private void filterList(String query) {
+        filteredList.clear();
+        if (query.isEmpty()) {
+            filteredList.addAll(commodityList);
         } else {
-            String dateStr = manager.formatDate(lastUpdate);
-            lastUpdatedText.setText("Updated: " + dateStr);
-            statusText.setVisibility(View.GONE);
+            for (Commodity item : commodityList) {
+                if (item.getName().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(item);
+                }
+            }
         }
+        adapter.notifyDataSetChanged();
+        toggleEmptyView();
     }
 
-    public void saveFavorites() {
-        manager.saveFavorites();
+    private void toggleEmptyView() {
+        if (filteredList.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 }
