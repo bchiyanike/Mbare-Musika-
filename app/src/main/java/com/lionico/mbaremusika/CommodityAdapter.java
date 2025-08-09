@@ -17,23 +17,30 @@ public class CommodityAdapter extends RecyclerView.Adapter<CommodityAdapter.View
 
     private final Context context;
     private List<Commodity> commodities;
+    private final LayoutInflater inflater;
+    private OnItemClickListener clickListener;
 
-    public CommodityAdapter(Context context, List<Commodity> commodities) {
+    public interface OnItemClickListener {
+        void onItemClick(Commodity commodity);
+    }
+
+    public CommodityAdapter(Context context, List<Commodity> commodities, OnItemClickListener listener) {
         this.context = context;
         this.commodities = commodities;
+        this.inflater = LayoutInflater.from(context);
+        this.clickListener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_commodity, parent, false);
+        View view = inflater.inflate(R.layout.list_item_commodity, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Commodity commodity = commodities.get(position);
-
         holder.nameText.setText(commodity.getName());
         holder.quantityText.setText(commodity.getQuantity());
 
@@ -54,16 +61,14 @@ public class CommodityAdapter extends RecyclerView.Adapter<CommodityAdapter.View
             boolean newState = !commodity.isFavorite();
             commodity.setFavorite(newState);
             notifyItemChanged(position);
-
             if (context instanceof MainActivity) {
                 ((MainActivity) context).saveFavorites();
             }
         });
 
-        // Handle click on entire row
         holder.itemView.setOnClickListener(v -> {
-            if (context instanceof MainActivity) {
-                ((MainActivity) context).openDetail(commodity);
+            if (clickListener != null) {
+                clickListener.onItemClick(commodity);
             }
         });
     }
@@ -79,9 +84,7 @@ public class CommodityAdapter extends RecyclerView.Adapter<CommodityAdapter.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nameText;
-        TextView quantityText;
-        TextView usdPriceText;
+        TextView nameText, quantityText, usdPriceText;
         ImageView favoriteStar;
 
         ViewHolder(@NonNull View itemView) {
