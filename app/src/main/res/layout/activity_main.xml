@@ -18,39 +18,54 @@
         android:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_refresh" />
 
-    <!-- Main Horizontal Layout -->
-    <LinearLayout
+    <!-- Last Updated Text -->
+    <TextView
+        android:id="@+id/tv_last_updated"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
+        android:text="Last updated"
+        android:textSize="14sp"
+        android:paddingTop="8dp"
+        android:textColor="#555" />
 
-        <Button
-            android:id="@+id/btn_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Refresh"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="@android:color/white" />
+    <!-- Status Text -->
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status message"
+        android:textSize="16sp"
+        android:paddingTop="4dp"
+        android:visibility="gone"
+        android:textColor="#b00" />
 
-        <TextView
-            android:id="@+id/status_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="Status"
-            android:textSize="16sp" />
-
-    </LinearLayout>
+    <!-- Search EditText -->
+    <EditText
+        android:id="@+id/et_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search commodities"
+        android:inputType="text"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/rv_commodities"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="8dp" />
+
+    <!-- Empty View Text -->
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No commodities found"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:visibility="gone" />
 
 </LinearLayout>
