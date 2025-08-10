@@ -43,6 +43,31 @@ jobs:
           name: app-release
           path: app/build/outputs/apk/release/app-release.apk
 
+      # Run app on emulator and capture crash log
+      - name: Run App and Capture Crash Log
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: default
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-snapshot-save -noaudio -no-boot-anim
+          script: |
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -n com.lionico.mbaremusika/.MainActivity
+            sleep 5 # Wait for app to launch and potentially crash
+            adb logcat -d > crash_log.txt
+            adb shell am force-stop com.lionico.mbaremusika # Stop the app
+        continue-on-error: true # Continue even if the app crashes
+
+      # Upload crash log as artifact
+      - name: Upload Crash Log
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-log
+          path: crash_log.txt
+        if: always() # Upload log even if the emulator step fails
+
       # Upload to GitHub Releases only for tags
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -50,7 +75,9 @@ jobs:
         with:
           files: |
             app/build/outputs/apk/release/*.apk
-            app/build/outputs/apk/debug/*.apk       run: chmod +x gradlew
+            app/build/outputs/apk/debug/*.apk
+            crash_log.txt # Include crash log in release
 
+      # Note: This step seems redundant as assembleDebug/assembleRelease are already run
       - name: Build with Gradle
         run: ./gradlew assemble${{ github.event.inputs.buildType == 'release' && 'Release' || 'Debug' }}
