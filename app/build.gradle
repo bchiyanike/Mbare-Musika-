@@ -31,6 +31,10 @@ android {
         viewBinding true
         buildConfig true
     }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation" // Log deprecation details
+    }
 }
 
 dependencies {
@@ -51,8 +55,9 @@ dependencies {
 
     // (Optional) Lifecycle support
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
-
-    // (Optional) ViewModel & LiveData
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
+
+    // JSON parsing for JSONbin
+    implementation 'org.json:json:20231013'
 }
