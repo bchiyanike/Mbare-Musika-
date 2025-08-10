@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
-        <!-- Product Image Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +32,6 @@
                 android:contentDescription="@string/desc_product_image" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Product Info -->
         <TextView
             android:id="@+id/tv_detail_name"
             android:layout_width="match_parent"
@@ -64,7 +62,6 @@
             android:gravity="end"
             android:paddingBottom="8dp" />
 
-        <!-- Price History Header -->
         <TextView
             android:id="@+id/tv_price_history_header"
             android:layout_width="match_parent"
@@ -76,8 +73,7 @@
             android:paddingTop="24dp"
             android:paddingBottom="8dp" />
 
-        <!-- Price History RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
+        <com.lionico.mbaremusika.DetailActivity.EmptyRecyclerView
             android:id="@+id/lv_price_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,5 +81,16 @@
             android:contentDescription="@string/desc_price_history_list"
             android:scrollbars="vertical"
             android:nestedScrollingEnabled="true" />
+
+        <TextView
+            android:id="@+id/tv_empty_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/msg_no_data"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:padding="24dp"
+            android:textColor="@android:color/darker_gray"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>
