@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -28,7 +28,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView quantityView;
     private TextView priceView;
     private ImageView imageView;
-    private ListView historyList;
+    private RecyclerView historyList;
 
     // Data
     private String commodityId;
@@ -58,6 +58,8 @@ public class DetailActivity extends AppCompatActivity {
                 finish();
                 return;
             }
+
+            historyList.setLayoutManager(new LinearLayoutManager(this));
 
             // Get intent data safely
             commodityId = getIntent().getStringExtra("COMMODITY_ID");
@@ -118,7 +120,17 @@ public class DetailActivity extends AppCompatActivity {
         try {
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             String raw = prefs.getString(TEMP_HISTORY_KEY, "");
+            if (raw.isEmpty()) {
+                Log.w(TAG, "No cached history found");
+                historyList.setAdapter(null);
+                return;
+            }
             PriceHistory history = CommodityParser.parseHistory(raw);
+            if (history == null) {
+                Log.w(TAG, "Failed to parse cached history: " + raw);
+                historyList.setAdapter(null);
+                return;
+            }
             displayHistory(history);
         } catch (Exception e) {
             Log.e(TAG, "Error loading history", e);
@@ -142,12 +154,6 @@ public class DetailActivity extends AppCompatActivity {
 
     private void attachEmptyView() {
         try {
-            ViewGroup root = findViewById(android.R.id.content);
-            if (root == null) {
-                Log.e(TAG, "Root view not found");
-                return;
-            }
-
             TextView emptyView = new TextView(this);
             try {
                 emptyView.setText(getString(R.string.msg_no_data));
@@ -160,24 +166,9 @@ public class DetailActivity extends AppCompatActivity {
             emptyView.setPadding(24, 24, 24, 24);
             emptyView.setTextColor(getResources().getColor(android.R.color.darker_gray));
             emptyView.setVisibility(View.GONE);
-            emptyView.setId(android.R.id.empty);
-
-            if (root instanceof FrameLayout) {
-                ((FrameLayout) root).addView(emptyView,
-                    new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
-            } else if (root.getChildCount() > 0 && root.getChildAt(0) instanceof ViewGroup) {
-                ((ViewGroup) root.getChildAt(0)).addView(emptyView,
-                    new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT));
-            } else {
-                Log.w(TAG, "Root view is not a FrameLayout or LinearLayout");
-                return;
-            }
-
             historyList.setEmptyView(emptyView);
+            DividerItemDecoration divider = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
+            historyList.addItemDecoration(divider);
         } catch (Exception e) {
             Log.e(TAG, "Error attaching empty view", e);
         }
