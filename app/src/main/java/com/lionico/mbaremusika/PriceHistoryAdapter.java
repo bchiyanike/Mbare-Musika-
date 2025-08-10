@@ -2,64 +2,65 @@ package com.lionico.mbaremusika;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import java.util.Locale;
 
-public class PriceHistoryAdapter extends BaseAdapter {
+public class PriceHistoryAdapter extends RecyclerView.Adapter<PriceHistoryAdapter.ViewHolder> {
 
-    private Context ctx;
-    private List<PriceHistory.PriceRecord> records;
+    private final Context ctx;
+    private the List<PriceHistory.PriceRecord> records;
 
     public PriceHistoryAdapter(Context ctx, List<PriceHistory.PriceRecord> records) {
         this.ctx = ctx;
         this.records = records != null ? records : List.of();
     }
 
+    @NonNull
     @Override
-    public int getCount() {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(ctx).inflate(android.R.layout.simple_list_item_2, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        PriceHistory.PriceRecord current = records.get(position);
+        double price = current.getPrice();
+        holder.line1.setText(String.format(Locale.getDefault(), "$%.2f", price));
+        holder.line2.setText(current.getFormattedDateTime());
+
+        if (position > 0) {
+            double previous = records.get(position - 1).getPrice();
+            if (price < previous) {
+                holder.line1.setTextColor(Color.parseColor("#D32F2F"));
+            } else if (price > previous) {
+                holder.line1.setTextColor(Color.parseColor("#388E3C"));
+            } else {
+                holder.line1.setTextColor(Color.BLACK);
+            }
+        } else {
+            holder.line1.setTextColor(Color.BLACK);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
         return records.size();
     }
 
-    @Override
-    public Object getItem(int i) {
-        return records.get(i);
-    }
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView line1, line2;
 
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    @Override
-    public View getView(int i, View v, ViewGroup parent) {
-        if (v == null) {
-            v = LayoutInflater.from(ctx).inflate(android.R.layout.simple_list_item_2, parent, false);
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            line1 = itemView.findViewById(android.R.id.text1);
+            line2 = itemView.findViewById(android.R.id.text2);
         }
-
-        TextView line1 = v.findViewById(android.R.id.text1);
-        TextView line2 = v.findViewById(android.R.id.text2);
-
-        PriceHistory.PriceRecord current = records.get(i);
-        double price = current.getPrice();
-        line1.setText(String.format(Locale.getDefault(), "$%.2f", price));
-        line2.setText(current.getFormattedDateTime());
-
-        // Highlight price drop
-        if (i > 0) {
-            double previous = records.get(i - 1).getPrice();
-            if (price < previous) {
-                line1.setTextColor(Color.parseColor("#D32F2F")); // red for drop
-            } else if (price > previous) {
-                line1.setTextColor(Color.parseColor("#388E3C")); // green for rise
-            } else {
-                line1.setTextColor(Color.BLACK); // neutral
-            }
-        } else {
-            line1.setTextColor(Color.BLACK);
-        }
-
-        return v;
     }
 }
