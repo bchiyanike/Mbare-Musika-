@@ -14,7 +14,7 @@ import java.util.Locale;
 public class PriceHistoryAdapter extends RecyclerView.Adapter<PriceHistoryAdapter.ViewHolder> {
 
     private final Context ctx;
-    private the List<PriceHistory.PriceRecord> records;
+    private final List<PriceHistory.PriceRecord> records;
 
     public PriceHistoryAdapter(Context ctx, List<PriceHistory.PriceRecord> records) {
         this.ctx = ctx;
