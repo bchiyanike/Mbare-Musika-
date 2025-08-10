@@ -1,15 +1,17 @@
 package com.lionico.mbaremusika;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,52 +24,52 @@ public class DetailActivity extends AppCompatActivity {
     private static final String TAG = "DetailActivity";
     private static final String PREFS_NAME = "MbareMusikaPrefs";
     private static final String TEMP_HISTORY_KEY = "temp_history";
+    private static final String CHANNEL_ID = "price_alert_channel";
 
-    // UI Components
     private TextView nameView;
     private TextView quantityView;
     private TextView priceView;
     private ImageView imageView;
-    private RecyclerView historyList;
+    private EmptyRecyclerView historyList;
+    private TextView emptyView;
 
-    // Data
     private String commodityId;
     private String commodityName;
     private String quantity;
-    private String price; // raw string from intent
+    private String price;
 
-    private final NumberFormat usdFormat =
-            NumberFormat.getCurrencyInstance(Locale.US);
+    private final NumberFormat usdFormat = NumberFormat.getCurrencyInstance(Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        createNotificationChannel();
 
         try {
-            // Initialize views
             nameView = findViewById(R.id.tv_detail_name);
             quantityView = findViewById(R.id.tv_detail_quantity);
             priceView = findViewById(R.id.tv_detail_price);
             imageView = findViewById(R.id.iv_detail_image);
             historyList = findViewById(R.id.lv_price_history);
+            emptyView = findViewById(R.id.tv_empty_history);
 
             if (nameView == null || quantityView == null || priceView == null ||
-                imageView == null || historyList == null) {
+                imageView == null || historyList == null || emptyView == null) {
                 Log.e(TAG, "One or more views not found in activity_detail.xml");
                 finish();
                 return;
             }
 
             historyList.setLayoutManager(new LinearLayoutManager(this));
+            historyList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+            historyList.setEmptyView(emptyView);
 
-            // Get intent data safely
             commodityId = getIntent().getStringExtra("COMMODITY_ID");
             commodityName = getIntent().getStringExtra("COMMODITY_NAME");
             quantity = getIntent().getStringExtra("COMMODITY_QUANTITY");
             price = getIntent().getStringExtra("COMMODITY_PRICE");
 
-            // Set basic commodity info
             if (commodityName != null && !commodityName.isEmpty()) {
                 nameView.setText(commodityName);
             } else {
@@ -81,7 +83,6 @@ public class DetailActivity extends AppCompatActivity {
                 quantityView.setText("N/A");
             }
 
-            // Format price as USD with two decimals
             if (price != null && !price.isEmpty()) {
                 try {
                     double p = Double.parseDouble(price);
@@ -108,11 +109,23 @@ public class DetailActivity extends AppCompatActivity {
                 imageView.setContentDescription("Product image");
             }
 
-            attachEmptyView();
             loadHistoryFromCache();
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             finish();
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Price Alerts",
+                NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channel.setDescription("Notifications for price changes");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
         }
     }
 
@@ -143,34 +156,15 @@ public class DetailActivity extends AppCompatActivity {
             if (history != null && history.getRecords() != null && !history.getRecords().isEmpty()) {
                 PriceHistoryAdapter adapter = new PriceHistoryAdapter(this, history.getRecords());
                 historyList.setAdapter(adapter);
+                historyList.setEmptyViewVisible(false);
             } else {
                 historyList.setAdapter(null);
+                historyList.setEmptyViewVisible(true);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error displaying history", e);
             historyList.setAdapter(null);
-        }
-    }
-
-    private void attachEmptyView() {
-        try {
-            TextView emptyView = new TextView(this);
-            try {
-                emptyView.setText(getString(R.string.msg_no_data));
-            } catch (Resources.NotFoundException e) {
-                Log.e(TAG, "String msg_no_data not found", e);
-                emptyView.setText("No data available");
-            }
-            emptyView.setTextSize(16);
-            emptyView.setGravity(android.view.Gravity.CENTER);
-            emptyView.setPadding(24, 24, 24, 24);
-            emptyView.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            emptyView.setVisibility(View.GONE);
-            historyList.setEmptyView(emptyView);
-            DividerItemDecoration divider = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
-            historyList.addItemDecoration(divider);
-        } catch (Exception e) {
-            Log.e(TAG, "Error attaching empty view", e);
+            historyList.setEmptyViewVisible(true);
         }
     }
 
@@ -184,6 +178,38 @@ public class DetailActivity extends AppCompatActivity {
                 .apply();
         } catch (Exception e) {
             Log.e(TAG, "Error clearing SharedPreferences", e);
+        }
+    }
+
+    // Custom RecyclerView to handle empty view
+    public static class EmptyRecyclerView extends RecyclerView {
+        private View emptyView;
+
+        public EmptyRecyclerView(android.content.Context context, android.util.AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public void setEmptyView(View emptyView) {
+            this.emptyView = emptyView;
+            checkIfEmpty();
+        }
+
+        public void setEmptyViewVisible(boolean visible) {
+            if (emptyView != null) {
+                emptyView.setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
+        }
+
+        private void checkIfEmpty() {
+            if (emptyView != null && getAdapter() != null) {
+                emptyView.setVisibility(getAdapter().getItemCount() == 0 ? View.VISIBLE : View.GONE);
+            }
+        }
+
+        @Override
+        public void setAdapter(Adapter adapter) {
+            super.setAdapter(adapter);
+            checkIfEmpty();
         }
     }
 }
