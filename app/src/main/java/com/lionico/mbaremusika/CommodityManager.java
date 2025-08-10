@@ -26,10 +26,10 @@ public class CommodityManager {
     private static final String TEMP_HISTORY_KEY = "temp_history";
 
     private final Context context;
-    private final SharedPreferences prefs;
-    private final List<Commodity> allCommodities = new ArrayList<>();
-    private final List<Commodity> filteredCommodities = new ArrayList<>();
-    private final Map<String, PriceHistory> priceHistories = new HashMap<>();
+    private the SharedPreferences prefs;
+    private the List<Commodity> allCommodities = new ArrayList<>();
+    private the List<Commodity> filteredCommodities = new ArrayList<>();
+    private the Map<String, PriceHistory> priceHistories = new HashMap<>();
 
     public CommodityManager(Context context) {
         this.context = context;
@@ -45,7 +45,16 @@ public class CommodityManager {
                 URL url = new URL("https://api.jsonbin.io/v3/b/68949862f7e7a370d1f64e61/latest");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(15000);
+                conn.setRequestProperty("X-Master-Key", "your-jsonbin-api-key-here"); // Add your API key
+                int code = conn.getResponseCode();
+                if (code != HttpURLConnection.HTTP_OK) {
+                    Log.e(TAG, "HTTP error: " + code);
+                    loadCachedData();
+                    callback.run();
+                    return;
+                }
                 BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder builder = new StringBuilder();
                 String line;
@@ -53,8 +62,13 @@ public class CommodityManager {
                     builder.append(line);
                 }
                 reader.close();
-
                 String json = builder.toString();
+                if (json.isEmpty()) {
+                    Log.e(TAG, "Empty JSONbin response");
+                    loadCachedData();
+                    callback.run();
+                    return;
+                }
                 parseJsonbinData(json);
                 cacheData();
             } catch (Exception e) {
@@ -69,50 +83,69 @@ public class CommodityManager {
 
     private void parseJsonbinData(String json) {
         try {
+            if (json == null || json.isEmpty()) {
+                Log.e(TAG, "JSONbin response is null or empty");
+                return;
+            }
             JSONObject root = new JSONObject(json);
+            if (!root.has("record")) {
+                Log.e(TAG, "JSONbin response missing 'record' key: " + json);
+                return;
+            }
             JSONObject record = root.getJSONObject("record");
-
+            if (!record.has("currentPrices")) {
+                Log.e(TAG, "JSONbin response missing 'currentPrices' key: " + json);
+                return;
+            }
             allCommodities.clear();
             JSONArray currentPrices = record.getJSONArray("currentPrices");
             for (int i = 0; i < currentPrices.length(); i++) {
                 JSONObject obj = currentPrices.getJSONObject(i);
+                if (!obj.has("id") || !obj.has("itemName") || !obj.has("quantity") || !obj.has("priceUSD")) {
+                    Log.w(TAG, "Skipping invalid commodity entry: " + obj.toString());
+                    continue;
+                }
                 String name = obj.getString("itemName");
                 String quantity = obj.getString("quantity");
                 String price = String.valueOf(obj.getDouble("priceUSD"));
                 String id = obj.getString("id");
-
                 Commodity commodity = new Commodity(name, quantity, price);
                 commodity.setId(id);
                 allCommodities.add(commodity);
             }
-
-            JSONArray historyArray = record.getJSONArray("priceHistory");
-            for (int i = 0; i < historyArray.length(); i++) {
-                JSONObject day = historyArray.getJSONObject(i);
-                String date = day.getString("date");
-                JSONArray prices = day.getJSONArray("prices");
-
-                for (int j = 0; j < prices.length(); j++) {
-                    JSONObject entry = prices.getJSONObject(j);
-                    String name = entry.getString("itemName");
-                    String quantity = entry.getString("quantity");
-                    double price = entry.getDouble("priceUSD");
-                    String id = entry.getString("id");
-
-                    long timestamp = parseDateToMillis(date);
-                    PriceHistory history = priceHistories.getOrDefault(id, new PriceHistory(name));
-                    history.addRecord(price, timestamp);
-                    priceHistories.put(id, history);
+            if (record.has("priceHistory")) {
+                JSONArray historyArray = record.getJSONArray("priceHistory");
+                for (int i = 0; i < historyArray.length(); i++) {
+                    JSONObject day = historyArray.getJSONObject(i);
+                    if (!day.has("date") || !day.has("prices")) {
+                        Log.w(TAG, "Skipping invalid history entry: " + day.toString());
+                        continue;
+                    }
+                    String date = day.getString("date");
+                    JSONArray prices = day.getJSONArray("prices");
+                    for (int j = 0; j < prices.length(); j++) {
+                        JSONObject entry = prices.getJSONObject(j);
+                        if (!entry.has("id") || !entry.has("itemName") || !entry.has("quantity") || !entry.has("priceUSD")) {
+                            Log.w(TAG, "Skipping invalid price entry: " + entry.toString());
+                            continue;
+                        }
+                        String name = entry.getString("itemName");
+                        String quantity = entry.getString("quantity");
+                        double price = entry.getDouble("priceUSD");
+                        String id = entry.getString("id");
+                        long timestamp = parseDateToMillis(date);
+                        PriceHistory history = priceHistories.getOrDefault(id, new PriceHistory(name));
+                        history.addRecord(price, timestamp);
+                        priceHistories.put(id, history);
+                    }
                 }
             }
-
             prefs.edit()
                 .putString(KEY_DATA_JSON, json)
                 .putLong(KEY_LAST_UPDATE, System.currentTimeMillis())
                 .apply();
-
         } catch (JSONException e) {
-            Log.e(TAG, "Error parsing JSONbin data", e);
+            Log.e(TAG, "Error parsing JSONbin data: " + json, e);
         }
     }
 
@@ -120,6 +153,7 @@ public class CommodityManager {
         try {
             return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateStr).getTime();
         } catch (Exception e) {
+            Log.e(TAG, "Error parsing date: " + dateStr, e);
             return System.currentTimeMillis();
         }
     }
@@ -158,8 +192,8 @@ public class CommodityManager {
     private String serializeHistory(PriceHistory history) {
         StringBuilder sb = new StringBuilder();
         sb.append(history.getName()).append("|");
-        for (PriceHistory.PriceRecord record : history.getRecords()) {
-            sb.append(record.getPrice()).append(",").append(record.getTimestamp()).append(";");
+        for (PriceHistory.PriceRecord r : history.getRecords()) {
+            sb.append(r.getPrice()).append(",").append(r.getTimestamp()).append(";");
         }
         return sb.toString();
     }
@@ -175,7 +209,12 @@ public class CommodityManager {
     private void loadCachedData() {
         String raw = prefs.getString(KEY_DATA_JSON, "");
         if (!raw.isEmpty()) {
-            parseJsonbinData(raw);
+            try {
+                new JSONObject(raw); // Validate JSON
+                parseJsonbinData(raw);
+            } catch (JSONException e) {
+                Log.e(TAG, "Invalid cached JSON: " + raw, e);
+            }
         }
     }
 
