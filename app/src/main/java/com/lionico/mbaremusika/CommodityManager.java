@@ -24,12 +24,14 @@ public class CommodityManager {
     private static final String KEY_FAVORITES = "favorites";
     private static final String KEY_HISTORY_PREFIX = "history_";
     private static final String TEMP_HISTORY_KEY = "temp_history";
+    private static final String JSONBIN_URL = "https://api.jsonbin.io/v3/b/68949862f7e7a370d1f64e61/latest";
+    private static final String JSONBIN_API_KEY = "your-jsonbin-api-key-here"; // Replace with actual API key
 
     private final Context context;
-    private the SharedPreferences prefs;
-    private the List<Commodity> allCommodities = new ArrayList<>();
-    private the List<Commodity> filteredCommodities = new ArrayList<>();
-    private the Map<String, PriceHistory> priceHistories = new HashMap<>();
+    private final SharedPreferences prefs;
+    private final List<Commodity> allCommodities = new ArrayList<>();
+    private final List<Commodity> filteredCommodities = new ArrayList<>();
+    private final Map<String, PriceHistory> priceHistories = new HashMap<>();
 
     public CommodityManager(Context context) {
         this.context = context;
@@ -42,12 +44,12 @@ public class CommodityManager {
 
         new Thread(() -> {
             try {
-                URL url = new URL("https://api.jsonbin.io/v3/b/68949862f7e7a370d1f64e61/latest");
+                URL url = new URL(JSONBIN_URL);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(15000);
-                conn.setRequestProperty("X-Master-Key", "your-jsonbin-api-key-here"); // Add your API key
+                conn.setRequestProperty("X-Master-Key", JSONBIN_API_KEY);
                 int code = conn.getResponseCode();
                 if (code != HttpURLConnection.HTTP_OK) {
                     Log.e(TAG, "HTTP error: " + code);
@@ -75,7 +77,6 @@ public class CommodityManager {
                 Log.e(TAG, "Error loading from JSONbin", e);
                 loadCachedData();
             }
-
             filter("");
             callback.run();
         }).start();
@@ -164,7 +165,7 @@ public class CommodityManager {
 
     public void filter(String query) {
         filteredCommodities.clear();
-        String lowerQuery = query.toLowerCase();
+        String lowerQuery = query != null ? query.toLowerCase() : "";
         for (Commodity commodity : allCommodities) {
             if (commodity.getName().toLowerCase().contains(lowerQuery)) {
                 filteredCommodities.add(commodity);
@@ -183,6 +184,7 @@ public class CommodityManager {
     }
 
     public void prepareHistoryForDetail(Commodity commodity) {
+        if (commodity == null) return;
         PriceHistory history = priceHistories.get(commodity.getId());
         if (history != null) {
             prefs.edit().putString(TEMP_HISTORY_KEY, serializeHistory(history)).apply();
@@ -190,6 +192,7 @@ public class CommodityManager {
     }
 
     private String serializeHistory(PriceHistory history) {
+        if (history == null) return "";
         StringBuilder sb = new StringBuilder();
         sb.append(history.getName()).append("|");
         for (PriceHistory.PriceRecord r : history.getRecords()) {
