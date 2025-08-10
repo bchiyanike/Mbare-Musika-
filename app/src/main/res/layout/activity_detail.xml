@@ -76,13 +76,11 @@
             android:paddingTop="24dp"
             android:paddingBottom="8dp" />
 
-        <!-- Price History List -->
-        <ListView
+        <!-- Price History RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lv_price_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="@color/divider_color"
-            android:dividerHeight="1dp"
             android:background="?attr/colorSurface"
             android:contentDescription="@string/desc_price_history_list"
             android:scrollbars="vertical"
