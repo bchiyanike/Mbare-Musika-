@@ -53,11 +53,8 @@ dependencies {
     // Multidex support
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    // (Optional) Lifecycle support
+    // Lifecycle support
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
-
-    // JSON parsing for JSONbin
-    implementation 'org.json:json:20231013'
 }
