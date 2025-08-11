@@ -25,7 +25,7 @@ public class CommodityManager {
     private static final String KEY_HISTORY_PREFIX = "history_";
     private static final String TEMP_HISTORY_KEY = "temp_history";
     private static final String JSONBIN_URL = "https://api.jsonbin.io/v3/b/68949862f7e7a370d1f64e61/latest";
-    private static final String JSONBIN_API_KEY = "your-jsonbin-api-key-here"; // Replace with actual API key
+    private static final String JSONBIN_ACCESS_KEY = "$2a$10$uhcEquuNy1nCvAKgEbCwWe/0hp8mlfpVCmk7dEn27omlF8Ul99Lhq";
 
     private final Context context;
     private final SharedPreferences prefs;
@@ -49,7 +49,7 @@ public class CommodityManager {
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(15000);
-                conn.setRequestProperty("X-Master-Key", JSONBIN_API_KEY);
+                conn.setRequestProperty("X-Access-Key", JSONBIN_ACCESS_KEY);
                 int code = conn.getResponseCode();
                 if (code != HttpURLConnection.HTTP_OK) {
                     Log.e(TAG, "HTTP error: " + code);
