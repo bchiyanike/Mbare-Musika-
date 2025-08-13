@@ -165,9 +165,9 @@ public class CommodityManager {
 
     public void filter(String query) {
         filteredCommodities.clear();
-        String lowerQuery = query != null ? query.toLowerCase() : "";
+        String lowerQuery = query != null ? query.toLowerCase(Locale.getDefault()) : "";
         for (Commodity commodity : allCommodities) {
-            if (commodity.getName().toLowerCase().contains(lowerQuery)) {
+            if (commodity.getName().toLowerCase(Locale.getDefault()).contains(lowerQuery)) {
                 filteredCommodities.add(commodity);
             }
         }
