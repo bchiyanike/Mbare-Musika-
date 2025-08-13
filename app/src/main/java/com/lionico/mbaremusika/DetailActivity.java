@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +45,9 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        createNotificationChannel();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel();
+        }
 
         try {
             nameView = findViewById(R.id.tv_detail_name);
@@ -117,7 +120,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
                 "Price Alerts",
@@ -125,7 +128,9 @@ public class DetailActivity extends AppCompatActivity {
             );
             channel.setDescription("Notifications for price changes");
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 
@@ -181,7 +186,6 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    // Custom RecyclerView to handle empty view
     public static class EmptyRecyclerView extends RecyclerView {
         private View emptyView;
 
